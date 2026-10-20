@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/icon";
 import { useStore } from "@/components/store-provider";
 
@@ -16,6 +16,17 @@ export function SiteHeader() {
   const { itemCount } = useStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
+
   return (
     <>
       <div className="announcement-bar">Discover Your Everyday Elegance <span aria-hidden="true">✦</span></div>
@@ -24,6 +35,7 @@ export function SiteHeader() {
           <button
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-controls="primary-navigation"
             className="menu-toggle"
             onClick={() => setMenuOpen((open) => !open)}
             type="button"
@@ -34,7 +46,11 @@ export function SiteHeader() {
             <span className="wordmark-main">ASH BAGS</span>
             <span className="wordmark-sub">CARRY YOUR OWN KIND OF BEAUTY</span>
           </Link>
-          <nav aria-label="Main navigation" className={`main-nav${menuOpen ? " is-open" : ""}`}>
+          <nav
+            aria-label="Main navigation"
+            className={`main-nav${menuOpen ? " is-open" : ""}`}
+            id="primary-navigation"
+          >
             {links.map((link) => (
               <Link href={link.href} key={link.label} onClick={() => setMenuOpen(false)}>
                 {link.label}
